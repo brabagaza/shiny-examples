@@ -1,6 +1,7 @@
 #first test of pushing from rstudio to git
 #a line of comment on lien 2
 #see what happens here 
+#adding a line while in the master branch: why is there a second branch, did I make this?
 library(shiny)
 
 # Define UI for app that draws a histogram ----
