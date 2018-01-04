@@ -1,14 +1,18 @@
 #least_squares_animation
-
+#setwd('C:/Users/THINK_SUBJECT22/Documents/statistics')
+#d <- read.csv('beers_smiles.csv')
 #packages:
 #install.packages('Rgb')
-#library('Rgb')
-setwd('C:/Users/THINK_SUBJECT22/Documents/statistics')
-d <- read.csv('beers_smiles.csv')
+library('Rgb')
+d <- data.frame( x = seq(11)-1,  y= c(1,3,4,3, 5, 6, 8, 8, 9, 8, 7))
+colnames(d) = c('beers', 'smiles')
 #define the names of the IV and the DV::
 IV = colnames(d)[1]
 DV = colnames(d)[2]
 
+#define the names of the IV and the DV::
+IV = colnames(d)[1]
+DV = colnames(d)[2]
 #variables:
 point_color = rgb(0.2,0,1, 1)
 line_color = rgb(1,0.2,0.2, 0.6)
@@ -79,8 +83,6 @@ text('Y_hat = a + B(xy) * x(i)',
      xpd = NA,
      cex = text_size)
 
-
-
 #code above here is the same as the plot below, just here to test changes
 #################shiny ap here:
 ui <- fluidPage(
@@ -108,9 +110,7 @@ ui <- fluidPage(
 )
 
 
-total_diff_score
 #note: bins has become 'B'
-
 # Define server logic required to draw a histogram ----
 server <- function(input, output) {
   
@@ -176,5 +176,3 @@ server <- function(input, output) {
 
 # Create Shiny app ----
 shinyApp(ui = ui, server = server)
-
-
