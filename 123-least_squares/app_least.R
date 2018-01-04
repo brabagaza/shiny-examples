@@ -109,7 +109,6 @@ ui <- fluidPage(
   )
 )
 
-
 #note: bins has become 'B'
 # Define server logic required to draw a histogram ----
 server <- function(input, output) {
