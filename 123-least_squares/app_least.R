@@ -1,6 +1,5 @@
 #least_squares_animation
-#setwd('C:/Users/THINK_SUBJECT22/Documents/statistics')
-#d <- read.csv('beers_smiles.csv')
+
 #packages:
 #install.packages('Rgb')
 library('Rgb')
@@ -9,7 +8,6 @@ colnames(d) = c('beers', 'smiles')
 #define the names of the IV and the DV::
 IV = colnames(d)[1]
 DV = colnames(d)[2]
-
 #define the names of the IV and the DV::
 IV = colnames(d)[1]
 DV = colnames(d)[2]
@@ -19,19 +17,20 @@ line_color = rgb(1,0.2,0.2, 0.6)
 line_width = 3
 x1 = 5
 y1 = 12
-x2 = 5
-y2 = 14
+x2 = 2
+y2 = 15
+x3 = 7
+y3 = 15
 text_size = 1.6
-value_adjust = 100 
+value = 0
+value_adjust = 10 
 y_lim = c(-5, 15)
-  #y_lim = c(0, max(d[DV])+1) #this limit for variable data sets
- 
 #parameters
 par(mfrow = c(1,1), mar = c(1,1,1,1), oma = c(1,10,1,1)) #note: bottom, left, top and right . notes oma = outer margin region, mar = margins for ech specific plot
 #simple dot plot:
 plot(d, ylim = y_lim, type = 'n', 
      xlab = '#beers', 
-     lab = '#smiles')
+     ylab = '#smiles')
 #the regression line:
 abline(lsfit(d[IV], d[DV]), 
        col = line_color, 
@@ -45,8 +44,6 @@ for (i in seq(1:length(d[,1])+1)){
            col = line_color, 
            lwd = line_width)
 }
-
-mean_smiles <- mean(d[[DV]])
 #play with the intercept and B
 #value = 1 #this has to be the value that goes into the slider
 value_intercept = 0
@@ -60,21 +57,27 @@ new_intercept = intercept + (old_midpoint - new_midpoint)
 abline(new_intercept, new_B, 
        col = line_color,
        lwd = line_width)
+
+value = 2
+new_B = ((lsfit(d[IV], d[DV])[[1]][2]) + value/10)
+new_B
+
 total_diff_score = c()
 for (i in seq(1:length(d[,1])+1)){
   value = new_intercept+(new_B*(i-1))
   segments(d[IV][i,], d[DV][i,], d[IV][i,],value, 
            col = line_color, 
            lwd = line_width)
-  difference= (d[DV][i,]**2) - (value**2)
+  difference= abs((d[DV][i,]) - (value))
   total_diff_score = c(total_diff_score, difference)
+  print ('----------------------')
   print (i)
+  print (difference)
+  print(total_diff_score)
 }
 total_diff_score_complete = sum(total_diff_score)
+round(total_diff_score_complete,0)
 
-#after this change the new_intercept to be the old? make sure the order is correct
-intercept = new_intercept
-B = new_B
 #add the points, do this last to overlap the endpoints of the lines:
 points(d, cex = 2, col = point_color, pch = 16)
 #add labeling::
@@ -83,7 +86,9 @@ text('Y_hat = a + B(xy) * x(i)',
      xpd = NA,
      cex = text_size)
 
-#code above here is the same as the plot below, just here to test changes
+
+#code above here is the same as the plot below, just here to test changes to the plot outside of the app
+#code above here is the same as the plot below, just here to test changes to the plot outside of the app
 #################shiny ap here:
 ui <- fluidPage(
   # App title ----
@@ -94,7 +99,7 @@ ui <- fluidPage(
     sidebarPanel(
       # Input: Slider for the number of bins ----
       sliderInput(inputId = "B",
-                  label = "change the slope of the regression line, each step = 0.01",
+                  label = "change the slope of the regression line, each step = 0.1",
                   min = -100,
                   max = 100,
                   value = 0)
@@ -109,7 +114,6 @@ ui <- fluidPage(
   )
 )
 
-#note: bins has become 'B'
 # Define server logic required to draw a histogram ----
 server <- function(input, output) {
   
@@ -124,6 +128,9 @@ server <- function(input, output) {
          ylim = y_lim,
          xpd = NA)
     
+    #variables:
+    intercept = lsfit(d[IV], d[DV])[[1]][1]
+    B = lsfit(d[IV], d[DV])[[1]][2]
     value_intercept = 0 #for now zero, add second slider to change the intercept
     new_intercept = (lsfit(d[IV], d[DV])[[1]][1]) + value_intercept
     new_B = (lsfit(d[IV], d[DV])[[1]][2]) + value/value_adjust
@@ -131,42 +138,46 @@ server <- function(input, output) {
     new_midpoint = new_intercept+((length(d[DV][,1])/2)*new_B)
     new_intercept = intercept + (old_midpoint - new_midpoint)
     
-    #regression line + segments to plot:
+    #regression line:
     abline(new_intercept, new_B, 
            col = line_color,
            lwd = line_width)
+    
+    #draw the lines from points to the regression line and calculate the summ of differences:
     total_diff_score = c()
     for (i in seq(1:length(d[,1])+1)){
       value = new_intercept+(new_B*(i-1))
-      segments(d[IV][i,], d[DV][i,], d[IV][i,],value, 
+      segments(d[IV][i,], d[DV][i,], d[IV][i,],value, #x,y starting point, x,y end point
                col = line_color, 
                lwd = line_width)
-      difference= (d[DV][i,]**2) - (value**2)
+      difference= abs((d[DV][i,]) - (value))
       total_diff_score = c(total_diff_score, difference)
-      print (i)
     }
     total_diff_score_complete = sum(total_diff_score)
+    minimal_diff_score = sum(abs(lsfit(d[IV], d[DV])$residuals))
     
-    #after this change the new_intercept to be the old? make sure the order is correct
-    #intercept = new_intercept
-    #B = new_B
     #add the points, do this last to overlap the endpoints of the lines:
     points(d, cex = 2, col = point_color, 
            pch = 16, 
            ylim = y_lim
-           )
+    )
     #add labeling::
     text('Y_hat = a + B(xy) * x(i)',
          x = x1, y = y1, 
          xpd = NA,
          cex = text_size)
     
-    #text(total_diff_score_complete,
-     #    x = x2, y = y2, 
-      #   xpd = NA,
-       #  cex = text_size)
+    text(paste('minimal summ:', round(minimal_diff_score,0)),
+         x = x2, y = y2, 
+         xpd = NA,
+         cex = text_size)
+    #print the current sum of the residuals to the screen
+    text(paste('current summ:', round(total_diff_score_complete,0)),
+         x = x3, y = y3, 
+         xpd = NA,
+         cex = text_size)
     
-    })
+  })
   output$summary <- renderPrint({
     'the starting point of the slider (zero) is the calculated B value that minimized the total sum of all the vertical line segments'
   })

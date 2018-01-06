@@ -61,7 +61,7 @@ ui <- fluidPage(
   # App title ----
   titlePanel("Visualizing random noise"),
   # Sidebar layout with input and output definitions ----
-  sidebarLayout(
+  sidebarLayout(position = "right",
     # Sidebar panel for inputs ----
     sidebarPanel(
       # Input: Slider for the number of bins ----
@@ -76,7 +76,7 @@ ui <- fluidPage(
     # Main panel for displaying outputs ----
     mainPanel(
       # Output: Histogram ----
-      plotOutput(outputId = "distPlot"),
+      plotOutput(outputId = "distPlot", width="80%") ,
       verbatimTextOutput("summary")
     )
   )
